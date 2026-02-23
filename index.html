@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki-Read · 35+ языков</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #3b82f6;
+            --accent-soft: #eff6ff;
+            --bg: #f0f4fa;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text2: #64748b;
+            --radius: 18px;
+            --font-scale: 1;
+        }
+        [data-topic="tech"]    { --accent: #3b82f6; --accent-soft: #eff6ff; }
+        [data-topic="nature"]  { --accent: #22c55e; --accent-soft: #f0fdf4; }
+        [data-topic="history"] { --accent: #f59e0b; --accent-soft: #fffbeb; }
+        [data-topic="art"]     { --accent: #ec4899; --accent-soft: #fdf2f8; }
+        [data-topic="science"] { --accent: #8b5cf6; --accent-soft: #f5f3ff; }
+        [data-topic="sport"]   { --accent: #ef4444; --accent-soft: #fef2f2; }
+        [data-topic="geo"]     { --accent: #06b6d4; --accent-soft: #ecfeff; }
+
+        body.dark {
+            --bg: #0a0f1e; --surface: #111827; --surface2: #1f2937;
+            --border: #374151; --text: #f1f5f9; --text2: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+
+        html, body { max-width: 100%; overflow-x: hidden; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .topbar-row1 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--accent);
+            white-space: nowrap;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .search-wrap {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            gap: 6px;
+        }
+
+        .search-wrap input {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 14px;
+            border-radius: 30px;
+            border: 1.5px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            outline: none;
+        }
+        .search-wrap input:focus { border-color: var(--accent); }
+
+        .search-wrap .search-btn {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .topbar-row2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .btn-short { display: none; }
+        .btn-full  { display: inline; }
+
+        @media (max-width: 600px) {
+            .logo { display: none; }
+            .btn-full  { display: none; }
+            .btn-short { display: inline; }
+            .search-wrap .search-btn { padding: 10px 13px; }
+        }
+
+        .btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 30px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-ghost { background: var(--surface2); color: var(--text); border: 1.5px solid var(--border); }
+        .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-danger { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+
+        .sep { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+
+        .lang-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: 30px;
+            padding: 2px 4px;
+            flex-shrink: 0;
+            max-width: 200px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .lang-group::-webkit-scrollbar { display: none; }
+        .lang-chip {
+            padding: 6px 8px;
+            border-radius: 30px;
+            font-size: 16px;
+            background: transparent;
+            color: var(--text2);
+            cursor: pointer;
+            white-space: nowrap;
+            border: none;
+            transition: 0.1s;
+        }
+        .lang-chip.active {
+            background: var(--accent);
+            color: white;
+        }
+        .lang-chip:hover:not(.active) {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .lang-select-big {
+            padding: 9px 12px;
+            border-radius: 30px;
+            border: 1.5px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            flex-shrink: 0;
+            max-width: 70px;
+        }
+        @media (max-width: 600px) {
+            .lang-group { display: none; }
+            .lang-select-big { display: block; }
+        }
+        @media (min-width: 601px) {
+            .lang-select-big { display: none; }
+            .lang-group { display: flex; }
+        }
+
+        .font-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text2);
+            flex-shrink: 0;
+        }
+        input[type="range"] {
+            width: 70px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .main {
+            flex: 1;
+            padding: 16px;
+            max-width: 860px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .frame {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+            min-height: 400px;
+        }
+
+        @media (max-width: 600px) {
+            .frame { padding: 16px; }
+            .sep { display: none; }
+            .font-wrap { display: none; }
+        }
+
+        .home-hero { text-align: center; padding: 40px 20px 28px; }
+        .home-hero .big-icon { font-size: 60px; margin-bottom: 14px; }
+        .home-hero h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+        .home-hero p { color: var(--text2); margin-bottom: 22px; }
+        .home-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+        .section-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--text2); margin: 24px 0 10px; }
+        .topic-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .topic-chip {
+            padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+            background: var(--surface2); color: var(--text2); font-size: 13px; cursor: pointer; font-weight: 500;
+        }
+        .topic-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+        .results-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--text2); margin-bottom: 14px; }
+        .result-card { padding: 14px 16px; border-radius: 12px; cursor: pointer; border-bottom: 1px solid var(--border); }
+        .result-card:hover { background: var(--surface2); }
+        .result-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+        .result-card p { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+        .article-header { margin-bottom: 20px; }
+        .topic-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; background: var(--accent); color: white; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+        .article-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: calc(26px * var(--font-scale)); line-height: 1.3; margin-bottom: 12px; }
+        .article-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .article-content p { line-height: calc(1.7 * var(--font-scale)); margin: 14px 0; font-size: calc(15px * var(--font-scale)); color: var(--text); }
+        .article-footer { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+        .wiki-link { display: block; text-align: center; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent-soft)); color: white; border-radius: 14px; text-decoration: none; font-weight: 600; }
+        .nav-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .nav-btns .btn { flex: 1; justify-content: center; }
+
+        .rating-box { display: flex; align-items: center; gap: 10px; padding: 14px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 14px; flex-wrap: wrap; }
+        .rating-label { font-size: 14px; font-weight: 600; color: var(--text2); }
+        .rating-btns { display: flex; gap: 8px; }
+        .rate-btn { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 30px; border: 1.5px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 700; font-size: 14px; color: var(--text); }
+        .rate-btn.liked { background: #22c55e; color: white; border-color: #22c55e; }
+        .rate-btn.disliked { background: #ef4444; color: white; border-color: #ef4444; }
+
+        .skeleton { height: 16px; border-radius: 8px; background: linear-gradient(90deg, var(--border) 25%, var(--surface2) 50%, var(--border) 75%); background-size: 400%; animation: shimmer 1.3s infinite; margin-bottom: 10px; }
+        @keyframes shimmer { 0%{background-position:100%} 100%{background-position:-100%} }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; }
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+        .stat-card .num { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--accent); }
+        .stat-card .lbl { font-size: 11px; color: var(--text2); margin-top: 4px; }
+        .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+        .pill { padding: 5px 12px; border-radius: 20px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; border: 1px solid var(--accent); }
+        .list { display: flex; flex-direction: column; gap: 8px; }
+        .list-card { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .list-card:hover { border-color: var(--accent); }
+        .list-card .icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+        .list-card .info { flex: 1; min-width: 0; }
+        .list-card .c-title { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .list-card .c-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+        .list-card .arr { color: var(--text2); font-size: 16px; flex-shrink: 0; }
+        .remove-btn { padding: 4px 10px; border-radius: 20px; border: 1px solid #fecaca; background: #fef2f2; color: #ef4444; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--text2); }
+        .empty-state .e-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 15px; line-height: 1.6; }
+
+        .reading-progress {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 40px;
+            background: color-mix(in srgb, var(--surface) 80%, transparent);
+            backdrop-filter: blur(6px);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+            z-index: 999;
+            transition: 0.2s;
+            font-family: 'Syne', sans-serif;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+
+        .reading-progress.arrow {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body data-topic="default">
+
+<div class="topbar">
+    <div class="topbar-row1">
+        <span class="logo" onclick="showHome()">Wiki✦Read</span>
+        <div class="search-wrap">
+            <input type="text" id="searchInput" placeholder="Поиск в Википедии...">
+            <button class="search-btn" onclick="searchWiki()"><span class="btn-full">🔍 Найти</span><span class="btn-short">🔍</span></button>
+        </div>
+    </div>
+    <div class="topbar-row2">
+        <div class="lang-group" id="langChips">
+            <button class="lang-chip" data-lang="ru">🇷🇺</button>
+            <button class="lang-chip" data-lang="en">🇬🇧</button>
+            <button class="lang-chip" data-lang="de">🇩🇪</button>
+            <button class="lang-chip" data-lang="fr">🇫🇷</button>
+            <button class="lang-chip" data-lang="es">🇪🇸</button>
+            <button class="lang-chip" data-lang="it">🇮🇹</button>
+            <button class="lang-chip" data-lang="pt">🇵🇹</button>
+            <button class="lang-chip" data-lang="nl">🇳🇱</button>
+            <button class="lang-chip" data-lang="pl">🇵🇱</button>
+            <button class="lang-chip" data-lang="uk">🇺🇦</button>
+        </div>
+        <select id="langSelectBig" class="lang-select-big" onchange="setLang(this.value)">
+            <option value="ru">🇷🇺</option>
+            <option value="en">🇬🇧</option>
+            <option value="de">🇩🇪</option>
+            <option value="fr">🇫🇷</option>
+            <option value="es">🇪🇸</option>
+            <option value="it">🇮🇹</option>
+            <option value="pt">🇵🇹</option>
+            <option value="nl">🇳🇱</option>
+            <option value="pl">🇵🇱</option>
+            <option value="uk">🇺🇦</option>
+            <option value="ja">🇯🇵</option>
+            <option value="zh">🇨🇳</option>
+            <option value="ar">🇸🇦</option>
+            <option value="hi">🇮🇳</option>
+            <option value="bn">🇧🇩</option>
+            <option value="ko">🇰🇷</option>
+            <option value="tr">🇹🇷</option>
+            <option value="vi">🇻🇳</option>
+            <option value="th">🇹🇭</option>
+            <option value="cs">🇨🇿</option>
+            <option value="sv">🇸🇪</option>
+            <option value="fi">🇫🇮</option>
+            <option value="no">🇳🇴</option>
+            <option value="da">🇩🇰</option>
+            <option value="hu">🇭🇺</option>
+            <option value="el">🇬🇷</option>
+            <option value="he">🇮🇱</option>
+            <option value="ro">🇷🇴</option>
+            <option value="sk">🇸🇰</option>
+            <option value="bg">🇧🇬</option>
+            <option value="sr">🇷🇸</option>
+            <option value="hr">🇭🇷</option>
+            <option value="lt">🇱🇹</option>
+            <option value="lv">🇱🇻</option>
+            <option value="et">🇪🇪</option>
+            <option value="id">🇮🇩</option>
+            <option value="ms">🇲🇾</option>
+        </select>
+
+        <div class="font-wrap">
+            <span>A</span>
+            <input type="range" id="fontRange" min="0.8" max="1.4" step="0.1" value="1" oninput="setFontScale(this.value)">
+            <span style="font-size:17px;font-weight:600;">A</span>
+        </div>
+        <div class="sep"></div>
+        <button class="btn btn-ghost" onclick="randomArticle()">🎲</button>
+        <button class="btn btn-ghost" onclick="showBookmarks()">🔖</button>
+        <button class="btn btn-ghost" onclick="showHistory()">📋</button>
+        <button class="btn btn-ghost" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    </div>
+</div>
+
+<div class="main">
+    <div class="frame" id="frame"></div>
+</div>
+
+<div class="reading-progress" id="readingProgress" onclick="handleProgressClick()">0%</div>
+
+<script>
+let history = JSON.parse(localStorage.getItem('wh3') || '[]');
+let bookmarks = JSON.parse(localStorage.getItem('wb3') || '[]');
+let ratings = JSON.parse(localStorage.getItem('wr3') || '{}');
+let lang = localStorage.getItem('wlang') || 'ru';
+let theme = localStorage.getItem('wtheme') || 'light';
+let fontScale = parseFloat(localStorage.getItem('wfont') || '1');
+let currentArticle = '';
+let lastQuery = '';
+
+function updateLangUI(selectedLang) {
+    document.querySelectorAll('.lang-chip').forEach(chip => {
+        chip.classList.remove('active');
+        if (chip.dataset.lang === selectedLang) chip.classList.add('active');
+    });
+    document.getElementById('langSelectBig').value = selectedLang;
+}
+updateLangUI(lang);
+
+document.getElementById('fontRange').value = fontScale;
+applyFontScale(fontScale);
+applyTheme(theme);
+showHome();
+
+document.getElementById('searchInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') searchWiki();
+});
+
+document.querySelectorAll('.lang-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        const newLang = chip.dataset.lang;
+        setLang(newLang);
+        updateLangUI(newLang);
+    });
+});
+
+function toggleTheme() {
+    theme = theme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('wtheme', theme);
+    applyTheme(theme);
+}
+function applyTheme(t) {
+    document.body.classList.toggle('dark', t === 'dark');
+    document.getElementById('themeBtn').textContent = t === 'dark' ? '☀️' : '🌙';
+}
+
+function setLang(v) { 
+    lang = v; 
+    localStorage.setItem('wlang', v);
+    updateLangUI(v);
+}
+
+function setFontScale(v) {
+    fontScale = parseFloat(v);
+    localStorage.setItem('wfont', v);
+    applyFontScale(v);
+}
+function applyFontScale(v) {
+    document.documentElement.style.setProperty('--font-scale', v);
+}
+
+const TOPICS = {
+    tech:    ['технологи','программ','компьютер','интернет','software','computer','technology','ai','robot','electron','digital'],
+    nature:  ['природ','животн','растени','ecology','nature','animal','plant','forest','ocean','биолог'],
+    history: ['история','война','революц','history','war','empire','dynasty','ancient','medieval','средневек','империя'],
+    art:     ['искусств','живопис','музык','литератур','art','music','painting','film','cinema','поэзи','театр'],
+    science: ['физик','химия','математик','астроном','physics','chemistry','mathematics','quantum','atom','наука'],
+    sport:   ['спорт','футбол','баскетбол','sport','football','basketball','olympic','чемпионат','олимп'],
+    geo:     ['географ','страна','город','continent','country','city','geography','ocean','mountain','река','гора'],
+};
+const TOPIC_EMOJI  = { tech:'💻', nature:'🌿', history:'🏛️', art:'🎨', science:'🔬', sport:'⚽', geo:'🌍', default:'📄' };
+const TOPIC_LABEL  = { tech:'Технологии', nature:'Природа', history:'История', art:'Искусство', science:'Наука', sport:'Спорт', geo:'География', default:'Статья' };
+
+function detectTopic(title) {
+    const lower = title.toLowerCase();
+    for (const [topic, keys] of Object.entries(TOPICS)) {
+        if (keys.some(k => lower.includes(k))) return topic;
+    }
+    return 'default';
+}
+function setTopic(topic) { document.body.setAttribute('data-topic', topic || 'default'); }
+
+function saveHistory() { localStorage.setItem('wh3', JSON.stringify(history)); }
+function saveBookmarks() { localStorage.setItem('wb3', JSON.stringify(bookmarks)); }
+function saveRatings() { localStorage.setItem('wr3', JSON.stringify(ratings)); }
+
+function addToHistory(title, type) {
+    history = history.filter(i => i.title !== title);
+    history.unshift({ title, type, lang, date: new Date().toLocaleString(), ts: Date.now() });
+    if (history.length > 30) history = history.slice(0, 30);
+    saveHistory();
+}
+function isBookmarked(title) { return bookmarks.some(b => b.title === title && b.lang === lang); }
+function toggleBookmark(title) {
+    if (isBookmarked(title)) {
+        bookmarks = bookmarks.filter(b => !(b.title === title && b.lang === lang));
+    } else {
+        bookmarks.unshift({ title, lang, date: new Date().toLocaleString() });
+    }
+    saveBookmarks();
+}
+
+function frame(html) { document.getElementById('frame').innerHTML = html; }
+
+function showSkeleton() {
+    frame(`
+        <div class="skeleton" style="width:35%;height:20px;margin-bottom:10px;"></div>
+        <div class="skeleton" style="width:65%;height:32px;margin-bottom:20px;"></div>
+        <div class="skeleton" style="width:100%;"></div>
+        <div class="skeleton" style="width:97%;"></div>
+        <div class="skeleton" style="width:88%;"></div>
+        <div class="skeleton" style="width:93%;margin-bottom:20px;"></div>
+        <div class="skeleton" style="width:100%;"></div>
+        <div class="skeleton" style="width:80%;"></div>
+        <div class="skeleton" style="width:76%;"></div>
+    `);
+}
+
+function showHome() {
+    setTopic('default');
+    frame(`
+        <div class="home-hero">
+            <div class="big-icon">📖</div>
+            <h2>Добро пожаловать в Wiki✦Read</h2>
+            <p>Красивый способ читать Википедию.<br>Ищи статьи, сохраняй закладки и оценивай!</p>
+            <div class="home-actions">
+                <button class="btn btn-primary" onclick="randomArticle()">🎲 Случайная статья</button>
+                <button class="btn btn-ghost" onclick="showBookmarks()">🔖 Мои закладки</button>
+                <button class="btn btn-ghost" onclick="showHistory()">📋 История</button>
+            </div>
+        </div>
+        <div class="section-label">🎨 Тема интерфейса по категории</div>
+        <div class="topic-grid">
+            <span class="topic-chip" onclick="setTopic('tech')">💻 Технологии</span>
+            <span class="topic-chip" onclick="setTopic('nature')">🌿 Природа</span>
+            <span class="topic-chip" onclick="setTopic('history')">🏛️ История</span>
+            <span class="topic-chip" onclick="setTopic('art')">🎨 Искусство</span>
+            <span class="topic-chip" onclick="setTopic('science')">🔬 Наука</span>
+            <span class="topic-chip" onclick="setTopic('sport')">⚽ Спорт</span>
+            <span class="topic-chip" onclick="setTopic('geo')">🌍 География</span>
+        </div>
+    `);
+}
+
+function searchWiki() {
+    const q = document.getElementById('searchInput').value.trim();
+    if (!q) {
+        frame('<div class="empty-state"><div class="e-icon">✏️</div><p>Введите запрос для поиска</p></div>');
+        return;
+    }
+    lastQuery = q;
+    addToHistory('Поиск: ' + q, 'search');
+    showSkeleton();
+
+    fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`)
+        .then(r => r.json())
+        .then(data => {
+            const results = data.query && data.query.search;
+            if (!results || !results.length) {
+                frame('<div class="empty-state"><div class="e-icon">😕</div><p>Ничего не нашлось.<br>Попробуй другой запрос.</p></div>');
+                return;
+            }
+            let html = `<div class="results-title">🔍 Результаты: «${q}»</div>`;
+            results.slice(0, 8).forEach(r => {
+                const snippet = r.snippet.replace(/<[^>]*>/g, '').substring(0, 130);
+                const safeTitle = r.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+                html += `<div class="result-card" onclick="loadPage('${safeTitle}')">
+                    <h3>${r.title}</h3>
+                    <p>${snippet}…</p>
+                </div>`;
+            });
+            frame(html);
+        })
+        .catch(() => frame('<div class="empty-state"><div class="e-icon">⚠️</div><p>Ошибка сети.</p></div>'));
+}
+
+function loadPage(title) {
+    currentArticle = title;
+    setTopic(detectTopic(title));
+    addToHistory(title, 'article');
+    showSkeleton();
+
+    fetch(`https://${lang}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&format=json&origin=*&prop=text`)
+        .then(r => r.json())
+        .then(d => {
+            if (!d.parse || !d.parse.text) throw new Error('no data');
+            const tmp = document.createElement('div');
+            tmp.innerHTML = d.parse.text['*'];
+            tmp.querySelectorAll('.reflist,.references,table,.thumb,.toc,[class*="navbox"]').forEach(el => el.remove());
+
+            const paras = tmp.querySelectorAll('p');
+            let content = '', count = 0;
+            for (const p of paras) {
+                const text = p.textContent.trim();
+                if (text.length > 60) {
+                    content += `<p>${text.substring(0, 520)}${text.length > 520 ? '…' : ''}</p>`;
+                    count++;
+                }
+                if (count >= 6) break;
+            }
+
+            const rKey = `${lang}:${title}`;
+            const r = ratings[rKey] || { likes: 0, dislikes: 0, mine: null };
+            const bmActive = isBookmarked(title);
+            const safeTitle = title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const topic = detectTopic(title);
+
+            frame(`
+                <div class="article-header">
+                    <div class="topic-badge">${TOPIC_EMOJI[topic]} ${TOPIC_LABEL[topic]}</div>
+                    <div class="article-title">${title}</div>
+                    <div class="article-actions">
+                        <button class="btn btn-ghost" id="bmBtn" onclick="clickBookmark('${safeTitle}')">
+                            🔖 ${bmActive ? 'В закладках' : 'Добавить'}
+                        </button>
+                    </div>
+                </div>
+                <div class="article-content">${content || '<p style="color:var(--text2)">Текст не удалось извлечь.</p>'}</div>
+                <div class="article-footer">
+                    <div class="rating-box">
+                        <div class="rating-label">💬 Оцени статью</div>
+                        <div class="rating-btns">
+                            <button class="rate-btn ${r.mine === 'like' ? 'liked' : ''}" id="likeBtn" onclick="rate('like')">👍 <span id="likeCnt">${r.likes}</span></button>
+                            <button class="rate-btn ${r.mine === 'dislike' ? 'disliked' : ''}" id="dislikeBtn" onclick="rate('dislike')">👎 <span id="dislikeCnt">${r.dislikes}</span></button>
+                        </div>
+                    </div>
+                    <a class="wiki-link" href="https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title)}" target="_blank">📖 Читать полностью на Википедии →</a>
+                    <div class="nav-btns">
+                        ${lastQuery ? `<button class="btn btn-ghost" onclick="searchWiki()">← К результатам</button>` : ''}
+                        <button class="btn btn-ghost" onclick="showHistory()">📋 История</button>
+                        <button class="btn btn-ghost" onclick="randomArticle()">🎲 Случайная</button>
+                    </div>
+                </div>
+            `);
+        })
+        .catch(() => frame('<div class="empty-state"><div class="e-icon">❌</div><p>Не удалось загрузить статью.</p></div>'));
+}
+
+function clickBookmark(title) {
+    toggleBookmark(title);
+    const btn = document.getElementById('bmBtn');
+    if (btn) btn.innerHTML = `🔖 ${isBookmarked(title) ? 'В закладках' : 'Добавить'}`;
+}
+
+function rate(type) {
+    const key = `${lang}:${currentArticle}`;
+    if (!ratings[key]) ratings[key] = { likes: 0, dislikes: 0, mine: null };
+    const r = ratings[key];
+    const field = type === 'like' ? 'likes' : 'dislikes';
+    const oppField = type === 'like' ? 'dislikes' : 'likes';
+    if (r.mine === type) { r[field]--; r.mine = null; }
+    else { if (r.mine) r[oppField]--; r[field]++; r.mine = type; }
+    saveRatings();
+    document.getElementById('likeCnt').textContent = r.likes;
+    document.getElementById('dislikeCnt').textContent = r.dislikes;
+    document.getElementById('likeBtn').className = `rate-btn ${r.mine === 'like' ? 'liked' : ''}`;
+    document.getElementById('dislikeBtn').className = `rate-btn ${r.mine === 'dislike' ? 'disliked' : ''}`;
+    const hi = history.find(i => i.title === currentArticle);
+    if (hi) { hi.rating = r.mine; saveHistory(); }
+}
+
+function randomArticle() {
+    setTopic('default');
+    showSkeleton();
+    fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`)
+        .then(r => r.json())
+        .then(d => { loadPage(d.query.random[0].title); })
+        .catch(() => frame('<div class="empty-state"><div class="e-icon">⚠️</div><p>Не удалось получить случайную статью</p></div>'));
+}
+
+function showHistory() {
+    setTopic('default');
+    const articles = history.filter(i => i.type === 'article');
+    const searches = history.filter(i => i.type === 'search');
+    const liked = history.filter(i => i.rating === 'like').length;
+    const disliked = history.filter(i => i.rating === 'dislike').length;
+    const topicCounts = {};
+    articles.forEach(a => { const t = detectTopic(a.title); topicCounts[t] = (topicCounts[t] || 0) + 1; });
+    const topTopics = Object.entries(topicCounts).sort((a,b) => b[1]-a[1]).slice(0, 5);
+
+    let html = `
+        <div class="section-header">
+            <div class="section-title">📋 История</div>
+            ${history.length ? `<button class="btn btn-danger" onclick="clearHistory()">🗑️ Очистить всё</button>` : ''}
+        </div>
+        <div class="stats-row">
+            <div class="stat-card"><div class="num">${articles.length}</div><div class="lbl">📄 Статей</div></div>
+            <div class="stat-card"><div class="num">${searches.length}</div><div class="lbl">🔍 Поисков</div></div>
+            <div class="stat-card"><div class="num">${liked}</div><div class="lbl">👍 Лайков</div></div>
+            <div class="stat-card"><div class="num">${disliked}</div><div class="lbl">👎 Дизлайков</div></div>
+        </div>
+        ${topTopics.length ? `<div style="margin-bottom:16px;"><div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">🏆 Твои любимые темы</div><div class="pills">${topTopics.map(([t,c]) => `<span class="pill">${TOPIC_EMOJI[t]} ${TOPIC_LABEL[t]} ×${c}</span>`).join('')}</div></div>` : ''}
+    `;
+
+    if (!history.length) {
+        html += `<div class="empty-state"><div class="e-icon">🕊️</div><p>История пока пуста.</p></div>`;
+    } else {
+        html += `<div class="list">`;
+        history.forEach(item => {
+            const safeTitle = item.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const icon = item.type === 'search' ? '🔍' : '📄';
+            const ratingBadge = item.rating === 'like' ? ' 👍' : item.rating === 'dislike' ? ' 👎' : '';
+            html += `<div class="list-card" onclick="handleHistoryClick('${safeTitle}', '${item.type}')">
+                <div class="icon">${icon}</div>
+                <div class="info">
+                    <div class="c-title">${item.title}${ratingBadge}</div>
+                    <div class="c-sub">${item.date} · ${(item.lang||'ru').toUpperCase()}</div>
+                </div>
+                <span class="arr">→</span>
+            </div>`;
+        });
+        html += `</div>`;
+    }
+    frame(html);
+}
+
+function handleHistoryClick(title, type) {
+    if (type === 'search') {
+        const q = title.replace('Поиск: ', '');
+        document.getElementById('searchInput').value = q;
+        searchWiki();
+    } else {
+        loadPage(title);
+    }
+}
+function clearHistory() {
+    if (confirm('Точно очистить всю историю?')) { history = []; saveHistory(); showHistory(); }
+}
+
+function showBookmarks() {
+    setTopic('default');
+    let html = `<div class="section-header"><div class="section-title">🔖 Закладки</div></div>`;
+    if (!bookmarks.length) {
+        html += `<div class="empty-state"><div class="e-icon">🔖</div><p>Закладок пока нет.<br>Открой статью и нажми «Добавить».</p></div>`;
+    } else {
+        html += `<div class="list">`;
+        bookmarks.forEach(b => {
+            const safeTitle = b.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const topic = detectTopic(b.title);
+            html += `<div class="list-card">
+                <div class="icon" onclick="loadPage('${safeTitle}')">${TOPIC_EMOJI[topic]}</div>
+                <div class="info" onclick="loadPage('${safeTitle}')">
+                    <div class="c-title">${b.title}</div>
+                    <div class="c-sub">${b.date} · ${(b.lang||'ru').toUpperCase()}</div>
+                </div>
+                <button class="remove-btn" onclick="removeBookmark('${safeTitle}')">✕ Удалить</button>
+            </div>`;
+        });
+        html += `</div>`;
+    }
+    frame(html);
+}
+
+function removeBookmark(title) {
+    bookmarks = bookmarks.filter(b => b.title !== title);
+    saveBookmarks();
+    showBookmarks();
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+function scrollToBottom() {
+    window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth'
+    });
+}
+
+function handleProgressClick() {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    
+    if (winScroll < 10) {
+        scrollToBottom();
+    } else {
+        scrollToTop();
+    }
+}
+
+function updateReadingProgress() {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const progressEl = document.getElementById('readingProgress');
+    
+    if (height <= 0) {
+        progressEl.innerHTML = '0%';
+        progressEl.classList.remove('arrow');
+        return;
+    }
+    
+    const scrolled = Math.min(100, Math.round((winScroll / height) * 100));
+    
+    if (winScroll < 10) {
+        progressEl.innerHTML = '↓';
+        progressEl.classList.add('arrow');
+    } 
+    else if (scrolled >= 100 || (window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 5) {
+        progressEl.innerHTML = '↑';
+        progressEl.classList.add('arrow');
+    } 
+    else {
+        progressEl.innerHTML = scrolled + '%';
+        progressEl.classList.remove('arrow');
+    }
+}
+
+window.addEventListener('scroll', updateReadingProgress);
+window.addEventListener('load', updateReadingProgress);
+window.addEventListener('resize', updateReadingProgress);
+setInterval(updateReadingProgress, 100);
+</script>
+</body>
+</html>
