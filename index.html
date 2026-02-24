@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki-Read</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #3b82f6;
+            --accent-soft: #eff6ff;
+            --bg: #f0f4fa;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text2: #64748b;
+            --radius: 18px;
+            --font-scale: 1;
+        }
+        [data-topic="tech"]    { --accent: #3b82f6; --accent-soft: #eff6ff; }
+        [data-topic="nature"]  { --accent: #22c55e; --accent-soft: #f0fdf4; }
+        [data-topic="history"] { --accent: #f59e0b; --accent-soft: #fffbeb; }
+        [data-topic="art"]     { --accent: #ec4899; --accent-soft: #fdf2f8; }
+        [data-topic="science"] { --accent: #8b5cf6; --accent-soft: #f5f3ff; }
+        [data-topic="sport"]   { --accent: #ef4444; --accent-soft: #fef2f2; }
+        [data-topic="geo"]     { --accent: #06b6d4; --accent-soft: #ecfeff; }
+
+        body.dark {
+            --bg: #0a0f1e;
+            --surface: #111827;
+            --surface2: #1f2937;
+            --border: #374151;
+            --text: #f1f5f9;
+            --text2: #94a3b8;
+            --accent-soft: #1e293b;
+        }
+
+        body.dark .btn-ghost {
+            background: #1f2937;
+            color: #f1f5f9;
+            border-color: #374151;
+        }
+
+        body.dark .btn-ghost:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        body.dark .stat-card,
+        body.dark .list-card,
+        body.dark .game-card,
+        body.dark .calculator,
+        body.dark .calc-btn,
+        body.dark .const-btn,
+        body.dark .calc-history,
+        body.dark .calc-display {
+            background: #1f2937;
+            border-color: #374151;
+            color: #f1f5f9;
+        }
+
+        body.dark .calc-btn.operator {
+            background: #1e293b;
+        }
+
+        body.dark .calc-btn.function {
+            background: #422006;
+        }
+
+        body.dark .calc-btn.equals {
+            background: #1e3a8a;
+        }
+
+        body.dark .calc-btn.clear {
+            background: #3b0a0a;
+        }
+
+        body.dark .rate-btn {
+            background: #1f2937;
+            border-color: #374151;
+            color: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+
+        html, body { max-width: 100%; overflow-x: hidden; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .topbar-row1 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--accent);
+            white-space: nowrap;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .search-wrap {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            gap: 6px;
+        }
+
+        .search-wrap input {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 14px;
+            border-radius: 30px;
+            border: 1.5px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            outline: none;
+        }
+        .search-wrap input:focus { border-color: var(--accent); }
+
+        .search-wrap .search-btn {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .topbar-row2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .btn-short { display: none; }
+        .btn-full  { display: inline; }
+
+        @media (max-width: 600px) {
+            .logo { display: none; }
+            .btn-full  { display: none; }
+            .btn-short { display: inline; }
+            .search-wrap .search-btn { padding: 10px 13px; }
+        }
+
+        .btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 30px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-ghost { background: var(--surface2); color: var(--text); border: 1.5px solid var(--border); }
+        .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-danger { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+        .btn-success { background: #22c55e; color: white; border: 1px solid #22c55e; }
+        .btn-warning { background: #f59e0b; color: white; border: 1px solid #f59e0b; }
+
+        .sep { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+
+        .lang-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: 30px;
+            padding: 2px 4px;
+            flex-shrink: 0;
+            max-width: 200px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .lang-group::-webkit-scrollbar { display: none; }
+        .lang-chip {
+            padding: 6px 8px;
+            border-radius: 30px;
+            font-size: 16px;
+            background: transparent;
+            color: var(--text2);
+            cursor: pointer;
+            white-space: nowrap;
+            border: none;
+            transition: 0.1s;
+        }
+        .lang-chip.active {
+            background: var(--accent);
+            color: white;
+        }
+        .lang-chip:hover:not(.active) {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .lang-select-big {
+            padding: 9px 12px;
+            border-radius: 30px;
+            border: 1.5px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            flex-shrink: 0;
+            max-width: 70px;
+        }
+        @media (max-width: 600px) {
+            .lang-group { display: none; }
+            .lang-select-big { display: block; }
+        }
+        @media (min-width: 601px) {
+            .lang-select-big { display: none; }
+            .lang-group { display: flex; }
+        }
+
+        .font-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text2);
+            flex-shrink: 0;
+        }
+        input[type="range"] {
+            width: 70px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .main {
+            flex: 1;
+            padding: 16px;
+            max-width: 980px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .frame {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+            min-height: 400px;
+        }
+
+        @media (max-width: 600px) {
+            .frame { padding: 16px; }
+            .sep { display: none; }
+            .font-wrap { display: none; }
+        }
+
+        .home-hero { text-align: center; padding: 40px 20px 28px; }
+        .home-hero .big-icon { font-size: 60px; margin-bottom: 14px; }
+        .home-hero h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+        .home-hero p { color: var(--text2); margin-bottom: 22px; }
+        .home-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+        .section-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--text2); margin: 24px 0 10px; }
+        .topic-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .topic-chip {
+            padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+            background: var(--surface2); color: var(--text2); font-size: 13px; cursor: pointer; font-weight: 500;
+        }
+        .topic-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+        .results-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--text2); margin-bottom: 14px; }
+        .result-card { padding: 14px 16px; border-radius: 12px; cursor: pointer; border-bottom: 1px solid var(--border); }
+        .result-card:hover { background: var(--surface2); }
+        .result-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+        .result-card p { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+        .article-header { margin-bottom: 20px; }
+        .topic-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; background: var(--accent); color: white; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+        .article-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: calc(28px * var(--font-scale)); line-height: 1.3; margin-bottom: 12px; }
+        .article-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        
+        .article-content {
+            font-size: calc(16px * var(--font-scale));
+            line-height: calc(1.7 * var(--font-scale));
+            color: var(--text);
+        }
+        
+        .article-content p { margin: 1.2em 0; }
+        .article-content h1, .article-content h2, .article-content h3, .article-content h4 {
+            font-family: 'Syne', sans-serif;
+            margin: 1.5em 0 0.8em;
+            font-weight: 700;
+            color: var(--text);
+        }
+        
+        .article-content h2 { font-size: calc(22px * var(--font-scale)); border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+        .article-content h3 { font-size: calc(18px * var(--font-scale)); }
+        
+        .article-content ul, .article-content ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        
+        .article-content li { margin: 0.5em 0; }
+        .article-content a { color: var(--accent); text-decoration: none; }
+        .article-content a:hover { text-decoration: underline; }
+        
+        .article-content table {
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .article-content th {
+            background: var(--accent-soft);
+            padding: 10px;
+            font-weight: 600;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .article-content td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .article-content tr:last-child td { border-bottom: none; }
+        
+        .article-content .infobox {
+            float: right;
+            margin: 0 0 20px 20px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            min-width: 250px;
+            max-width: 300px;
+        }
+        
+        .article-content .infobox img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .article-content figure { margin: 20px 0; text-align: center; }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+        
+        .article-content img:hover {
+            transform: scale(1.01);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .article-content figcaption {
+            margin-top: 8px;
+            font-size: calc(13px * var(--font-scale));
+            color: var(--text2);
+            font-style: italic;
+        }
+        
+        .article-content .thumb {
+            margin: 20px 0;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .article-content .thumbinner { text-align: center; }
+        
+        .article-content .thumbcaption {
+            font-size: calc(13px * var(--font-scale));
+            color: var(--text2);
+            margin-top: 8px;
+            padding: 0 10px;
+        }
+        
+        .article-content .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .article-content .gallerybox {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--surface2);
+        }
+        
+        .article-content .gallerybox .thumb { padding: 0; margin: 0; border: none; background: none; }
+        
+        .article-content .gallerybox img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 0;
+        }
+        
+        .article-content .gallerytext {
+            padding: 8px;
+            font-size: calc(12px * var(--font-scale));
+            color: var(--text2);
+            text-align: center;
+        }
+        
+        .article-footer { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+        .wiki-link { display: block; text-align: center; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent-soft)); color: white; border-radius: 14px; text-decoration: none; font-weight: 600; }
+        .nav-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .nav-btns .btn { flex: 1; justify-content: center; }
+
+        .rating-box { display: flex; align-items: center; gap: 10px; padding: 14px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 14px; flex-wrap: wrap; }
+        .rating-label { font-size: 14px; font-weight: 600; color: var(--text2); }
+        .rating-btns { display: flex; gap: 8px; }
+        .rate-btn { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 30px; border: 1.5px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 700; font-size: 14px; color: var(--text); }
+        .rate-btn.liked { background: #22c55e; color: white; border-color: #22c55e; }
+        .rate-btn.disliked { background: #ef4444; color: white; border-color: #ef4444; }
+
+        .speech-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .speech-btn {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .speech-btn.speaking {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .skeleton { height: 16px; border-radius: 8px; background: linear-gradient(90deg, var(--border) 25%, var(--surface2) 50%, var(--border) 75%); background-size: 400%; animation: shimmer 1.3s infinite; margin-bottom: 10px; }
+        @keyframes shimmer { 0%{background-position:100%} 100%{background-position:-100%} }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; }
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+        .stat-card .num { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--accent); }
+        .stat-card .lbl { font-size: 11px; color: var(--text2); margin-top: 4px; }
+        .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+        .pill { padding: 5px 12px; border-radius: 20px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; border: 1px solid var(--accent); }
+        .list { display: flex; flex-direction: column; gap: 8px; }
+        .list-card { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .list-card:hover { border-color: var(--accent); }
+        .list-card .icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+        .list-card .info { flex: 1; min-width: 0; }
+        .list-card .c-title { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .list-card .c-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+        .list-card .arr { color: var(--text2); font-size: 16px; flex-shrink: 0; }
+        .remove-btn { padding: 4px 10px; border-radius: 20px; border: 1px solid #fecaca; background: #fef2f2; color: #ef4444; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--text2); }
+        .empty-state .e-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 15px; line-height: 1.6; }
+
+        .reading-progress {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 40px;
+            background: color-mix(in srgb, var(--surface) 80%, transparent);
+            backdrop-filter: blur(6px);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+            z-index: 999;
+            transition: 0.2s;
+            font-family: 'Syne', sans-serif;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+
+        .reading-progress.arrow { font-size: 24px; }
+
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            cursor: pointer;
+        }
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .article-content .mw-editsection,
+        .article-content .mw-empty-elt,
+        .article-content .hatnote,
+        .article-content .dablink,
+        .article-content .navbox,
+        .article-content .vertical-navbox,
+        .article-content .reflist,
+        .article-content .references {
+            display: none;
+        }
+        
+        .article-content .infobox {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 0 0 20px 20px;
+            float: right;
+            clear: right;
+            max-width: 300px;
+            width: auto;
+        }
+        
+        @media (max-width: 600px) {
+            .article-content .infobox {
+                float: none;
+                margin: 20px 0;
+                max-width: 100%;
+            }
+        }
+        
+        .article-content .infobox th {
+            background: var(--accent-soft);
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .article-content .infobox td { padding: 8px; }
+        
+        .article-content .wikitable {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        .article-content .wikitable th,
+        .article-content .wikitable td {
+            border: 1px solid var(--border);
+            padding: 8px;
+        }
+        
+        .article-content .wikitable th {
+            background: var(--accent-soft);
+            font-weight: 600;
+        }
+
+        /* Игровые стили */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .game-card {
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .game-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .game-icon { font-size: 40px; margin-bottom: 12px; }
+        .game-title { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+        .game-desc { font-size: 12px; color: var(--text2); }
+
+        .guess-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: var(--surface2);
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .option-btn {
+            padding: 12px;
+            border-radius: 30px;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+        .option-btn.correct {
+            background: #22c55e;
+            color: white;
+            border-color: #22c55e;
+        }
+        .option-btn.wrong {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+        .option-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .fact-puzzle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 20px 0;
+        }
+        .fact-piece {
+            padding: 12px 20px;
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 30px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            flex: 1 1 auto;
+            min-width: 200px;
+            text-align: center;
+        }
+        .fact-piece.selected {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .fact-piece.correct {
+            background: #22c55e;
+            color: white;
+            border-color: #22c55e;
+        }
+        .fact-piece.wrong {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .quiz-stat {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 20px 0;
+        }
+
+        .battle-card {
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .battle-card:hover {
+            border-color: var(--accent);
+        }
+        .battle-card.selected {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+        }
+        .battle-card.winner {
+            background: #22c55e20;
+            border-color: #22c55e;
+        }
+
+        .game-progress {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .game-progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--surface2);
+            border-radius: 30px;
+        }
+
+        /* Компактный калькулятор */
+        .calculator {
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 24px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+        .calc-display {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 500;
+            min-height: 80px;
+            word-wrap: break-word;
+        }
+        .calc-display-small {
+            font-size: 14px;
+            color: var(--text2);
+            margin-bottom: 5px;
+            min-height: 20px;
+        }
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .calc-btn {
+            padding: 16px 8px;
+            border: none;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        .calc-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+        .calc-btn.operator {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        .calc-btn.equals {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .calc-btn.clear {
+            background: #ef444420;
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+        .calc-history {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        .calc-history-item {
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border);
+            color: var(--text2);
+        }
+        .calc-memory {
+            display: flex;
+            gap: 8px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        .memory-btn {
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .memory-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+    </style>
+</head>
+<body data-topic="default">
+
+<div class="topbar">
+    <div class="topbar-row1">
+        <span class="logo" onclick="showHome()">Wiki✦Read</span>
+        <div class="search-wrap">
+            <input type="text" id="searchInput" placeholder="Поиск в Википедии...">
+            <button class="search-btn" onclick="searchWiki()"><span class="btn-full">🔍 Найти</span><span class="btn-short">🔍</span></button>
+        </div>
+    </div>
+    <div class="topbar-row2">
+        <div class="lang-group" id="langChips">
+            <button class="lang-chip" data-lang="ru">🇷🇺</button>
+            <button class="lang-chip" data-lang="en">🇬🇧</button>
+            <button class="lang-chip" data-lang="de">🇩🇪</button>
+            <button class="lang-chip" data-lang="fr">🇫🇷</button>
+            <button class="lang-chip" data-lang="es">🇪🇸</button>
+            <button class="lang-chip" data-lang="it">🇮🇹</button>
+            <button class="lang-chip" data-lang="pt">🇵🇹</button>
+            <button class="lang-chip" data-lang="nl">🇳🇱</button>
+            <button class="lang-chip" data-lang="pl">🇵🇱</button>
+            <button class="lang-chip" data-lang="uk">🇺🇦</button>
+        </div>
+        <select id="langSelectBig" class="lang-select-big" onchange="setLang(this.value)">
+            <option value="ru">🇷🇺</option>
+            <option value="en">🇬🇧</option>
+            <option value="de">🇩🇪</option>
+            <option value="fr">🇫🇷</option>
+            <option value="es">🇪🇸</option>
+            <option value="it">🇮🇹</option>
+            <option value="pt">🇵🇹</option>
+            <option value="nl">🇳🇱</option>
+            <option value="pl">🇵🇱</option>
+            <option value="uk">🇺🇦</option>
+            <option value="ja">🇯🇵</option>
+            <option value="zh">🇨🇳</option>
+            <option value="ar">🇸🇦</option>
+            <option value="hi">🇮🇳</option>
+            <option value="bn">🇧🇩</option>
+            <option value="ko">🇰🇷</option>
+            <option value="tr">🇹🇷</option>
+            <option value="vi">🇻🇳</option>
+            <option value="th">🇹🇭</option>
+            <option value="cs">🇨🇿</option>
+            <option value="sv">🇸🇪</option>
+            <option value="fi">🇫🇮</option>
+            <option value="no">🇳🇴</option>
+            <option value="da">🇩🇰</option>
+            <option value="hu">🇭🇺</option>
+            <option value="el">🇬🇷</option>
+            <option value="he">🇮🇱</option>
+            <option value="ro">🇷🇴</option>
+            <option value="sk">🇸🇰</option>
+            <option value="bg">🇧🇬</option>
+            <option value="sr">🇷🇸</option>
+            <option value="hr">🇭🇷</option>
+            <option value="lt">🇱🇹</option>
+            <option value="lv">🇱🇻</option>
+            <option value="et">🇪🇪</option>
+            <option value="id">🇮🇩</option>
+            <option value="ms">🇲🇾</option>
+        </select>
+
+        <div class="font-wrap">
+            <span>A</span>
+            <input type="range" id="fontRange" min="0.8" max="1.4" step="0.1" value="1" oninput="setFontScale(this.value)">
+            <span style="font-size:17px;font-weight:600;">A</span>
+        </div>
+        <div class="sep"></div>
+        <button class="btn btn-ghost" onclick="randomArticle()">🎲</button>
+        <button class="btn btn-ghost" onclick="showGamesHub()">🎮</button>
+        <button class="btn btn-ghost" onclick="showCalculator()">🧮</button>
+        <button class="btn btn-ghost" onclick="showBookmarks()">🔖</button>
+        <button class="btn btn-ghost" onclick="showHistory()">📋</button>
+        <button class="btn btn-ghost" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    </div>
+</div>
+
+<div class="main">
+    <div class="frame" id="frame"></div>
+</div>
+
+<div class="reading-progress" id="readingProgress" onclick="handleProgressClick()">0%</div>
+
+<script>
+let history = JSON.parse(localStorage.getItem('wh3') || '[]');
+let bookmarks = JSON.parse(localStorage.getItem('wb3') || '[]');
+let ratings = JSON.parse(localStorage.getItem('wr3') || '{}');
+let lang = localStorage.getItem('wlang') || 'ru';
+let theme = localStorage.getItem('wtheme') || 'light';
+let fontScale = parseFloat(localStorage.getItem('wfont') || '1');
+let currentArticle = '';
+let lastQuery = '';
+
+// Game variables
+let currentGame = null;
+let gameScore = 0;
+let gameQuestions = [];
+let currentQuestionIndex = 0;
+let gameTimer = null;
+
+// Calculator variables
+let calcDisplay = '0';
+let calcMemory = 0;
+let calcHistory = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+let lastResult = '';
+let waitingForSecondNumber = false;
+
+// Speech synthesis variables
+let speechSynthesis = window.speechSynthesis;
+let speechUtterance = null;
+let isSpeaking = false;
+
+function updateLangUI(selectedLang) {
+    document.querySelectorAll('.lang-chip').forEach(chip => {
+        chip.classList.remove('active');
+        if (chip.dataset.lang === selectedLang) chip.classList.add('active');
+    });
+    document.getElementById('langSelectBig').value = selectedLang;
+}
+updateLangUI(lang);
+
+document.getElementById('fontRange').value = fontScale;
+applyFontScale(fontScale);
+applyTheme(theme);
+showHome();
+
+document.getElementById('searchInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') searchWiki();
+});
+
+document.querySelectorAll('.lang-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        const newLang = chip.dataset.lang;
+        setLang(newLang);
+        updateLangUI(newLang);
+    });
+});
+
+function toggleTheme() {
+    theme = theme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('wtheme', theme);
+    applyTheme(theme);
+}
+function applyTheme(t) {
+    document.body.classList.toggle('dark', t === 'dark');
+    document.getElementById('themeBtn').textContent = t === 'dark' ? '☀️' : '🌙';
+}
+
+function setLang(v) { 
+    lang = v; 
+    localStorage.setItem('wlang', v);
+    updateLangUI(v);
+}
+
+function setFontScale(v) {
+    fontScale = parseFloat(v);
+    localStorage.setItem('wfont', v);
+    applyFontScale(v);
+}
+function applyFontScale(v) {
+    document.documentElement.style.setProperty('--font-scale', v);
+}
+
+const TOPICS = {
+    tech:    ['технологи','программ','компьютер','интернет','software','computer','technology','ai','robot','electron','digital'],
+    nature:  ['природ','животн','растени','ecology','nature','animal','plant','forest','ocean','биолог'],
+    history: ['история','война','революц','history','war','empire','dynasty','ancient','medieval','средневек','империя'],
+    art:     ['искусств','живопис','музык','литератур','art','music','painting','film','cinema','поэзи','театр'],
+    science: ['физик','химия','математик','астроном','physics','chemistry','mathematics','quantum','atom','наука'],
+    sport:   ['спорт','футбол','баскетбол','sport','football','basketball','olympic','чемпионат','олимп'],
+    geo:     ['географ','страна','город','continent','country','city','geography','ocean','mountain','река','гора'],
+};
+const TOPIC_EMOJI  = { tech:'💻', nature:'🌿', history:'🏛️', art:'🎨', science:'🔬', sport:'⚽', geo:'🌍', default:'📄' };
+const TOPIC_LABEL  = { tech:'Технологии', nature:'Природа', history:'История', art:'Искусство', science:'Наука', sport:'Спорт', geo:'География', default:'Статья' };
+
+function detectTopic(title) {
+    const lower = title.toLowerCase();
+    for (const [topic, keys] of Object.entries(TOPICS)) {
+        if (keys.some(k => lower.includes(k))) return topic;
+    }
+    return 'default';
+}
+function setTopic(topic) { document.body.setAttribute('data-topic', topic || 'default'); }
+
+function saveHistory() { localStorage.setItem('wh3', JSON.stringify(history)); }
+function saveBookmarks() { localStorage.setItem('wb3', JSON.stringify(bookmarks)); }
+function saveRatings() { localStorage.setItem('wr3', JSON.stringify(ratings)); }
+
+function addToHistory(title, type) {
+    history = history.filter(i => i.title !== title);
+    history.unshift({ title, type, lang, date: new Date().toLocaleString(), ts: Date.now() });
+    if (history.length > 30) history = history.slice(0, 30);
+    saveHistory();
+}
+function isBookmarked(title) { return bookmarks.some(b => b.title === title && b.lang === lang); }
+function toggleBookmark(title) {
+    if (isBookmarked(title)) {
+        bookmarks = bookmarks.filter(b => !(b.title === title && b.lang === lang));
+    } else {
+        bookmarks.unshift({ title, lang, date: new Date().toLocaleString() });
+    }
+    saveBookmarks();
+}
+
+function frame(html) { document.getElementById('frame').innerHTML = html; }
+
+function showSkeleton() {
+    frame(`
+        <div class="skeleton" style="width:35%;height:20px;margin-bottom:10px;"></div>
+        <div class="skeleton" style="width:65%;height:32px;margin-bottom:20px;"></div>
+        <div class="skeleton" style="width:100%;height:200px;margin-bottom:20px;"></div>
+        <div class="skeleton" style="width:100%;"></div>
+        <div class="skeleton" style="width:97%;"></div>
+        <div class="skeleton" style="width:88%;"></div>
+        <div class="skeleton" style="width:93%;margin-bottom:20px;"></div>
+        <div class="skeleton" style="width:100%;"></div>
+        <div class="skeleton" style="width:80%;"></div>
+        <div class="skeleton" style="width:76%;"></div>
+    `);
+}
+
+function showHome() {
+    setTopic('default');
+    frame(`
+        <div class="home-hero">
+            <div class="big-icon">📖</div>
+            <h2>Добро пожаловать в Wiki✦Read</h2>
+            <p>Красивый способ читать полные статьи Википедии с картинками.<br>Ищи, сохраняй закладки, играй, считай и оценивай!</p>
+            <div class="home-actions">
+                <button class="btn btn-primary" onclick="randomArticle()">🎲 Случайная статья</button>
+                <button class="btn btn-success" onclick="showGamesHub()">🎮 Игры</button>
+                <button class="btn btn-warning" onclick="showCalculator()">🧮 Калькулятор</button>
+                <button class="btn btn-ghost" onclick="showBookmarks()">🔖 Закладки</button>
+                <button class="btn btn-ghost" onclick="showHistory()">📋 История</button>
+            </div>
+        </div>
+        <div class="section-label">🎨 Тема интерфейса по категории</div>
+        <div class="topic-grid">
+            <span class="topic-chip" onclick="setTopic('tech')">💻 Технологии</span>
+            <span class="topic-chip" onclick="setTopic('nature')">🌿 Природа</span>
+            <span class="topic-chip" onclick="setTopic('history')">🏛️ История</span>
+            <span class="topic-chip" onclick="setTopic('art')">🎨 Искусство</span>
+            <span class="topic-chip" onclick="setTopic('science')">🔬 Наука</span>
+            <span class="topic-chip" onclick="setTopic('sport')">⚽ Спорт</span>
+            <span class="topic-chip" onclick="setTopic('geo')">🌍 География</span>
+        </div>
+        <div class="section-label">🎮 Игры на базе Википедии</div>
+        <div class="games-grid">
+            <div class="game-card" onclick="startGame('guessImage')">
+                <div class="game-icon">🖼️</div>
+                <div class="game-title">Угадай статью</div>
+                <div class="game-desc">Угадай статью по картинке</div>
+            </div>
+            <div class="game-card" onclick="startGame('factPuzzle')">
+                <div class="game-icon">🧩</div>
+                <div class="game-title">Собери пазл</div>
+                <div class="game-desc">Собери пазл из фактов</div>
+            </div>
+            <div class="game-card" onclick="startGame('truthOrMyth')">
+                <div class="game-icon">🤔</div>
+                <div class="game-title">Правда или миф?</div>
+                <div class="game-desc">Квиз по мотивам статей</div>
+            </div>
+            <div class="game-card" onclick="startGame('titleBattle')">
+                <div class="game-icon">⚔️</div>
+                <div class="game-title">Битва заголовков</div>
+                <div class="game-desc">Выбери правильное название</div>
+            </div>
+        </div>
+    `);
+}
+
+function showGamesHub() {
+    setTopic('default');
+    frame(`
+        <div class="section-header">
+            <div class="section-title">🎮 Игры на базе Википедии</div>
+            <button class="btn btn-ghost" onclick="showHome()">← На главную</button>
+        </div>
+        <div class="games-grid">
+            <div class="game-card" onclick="startGame('guessImage')">
+                <div class="game-icon">🖼️</div>
+                <div class="game-title">Угадай статью по картинке</div>
+                <div class="game-desc">Посмотри на изображение и угадай, из какой оно статьи</div>
+            </div>
+            <div class="game-card" onclick="startGame('factPuzzle')">
+                <div class="game-icon">🧩</div>
+                <div class="game-title">Собери пазл из фактов</div>
+                <div class="game-desc">Соотнеси факты с правильными статьями</div>
+            </div>
+            <div class="game-card" onclick="startGame('truthOrMyth')">
+                <div class="game-icon">🤔</div>
+                <div class="game-title">Правда или миф?</div>
+                <div class="game-desc">Отдели правдивые факты от вымысла</div>
+            </div>
+            <div class="game-card" onclick="startGame('titleBattle')">
+                <div class="game-icon">⚔️</div>
+                <div class="game-title">Битва заголовков</div>
+                <div class="game-desc">Выбери правильное название статьи по описанию</div>
+            </div>
+        </div>
+    `);
+}
+
+function showCalculator() {
+    setTopic('default');
+    renderCalculator();
+}
+
+function renderCalculator() {
+    const historyHtml = calcHistory.slice(-5).reverse().map(item => 
+        `<div class="calc-history-item">${item}</div>`
+    ).join('');
+    
+    frame(`
+        <div class="section-header">
+            <div class="section-title">🧮 Калькулятор</div>
+            <button class="btn btn-ghost" onclick="showHome()">← На главную</button>
+        </div>
+        
+        <div class="calculator">
+            <div class="calc-display">
+                <div class="calc-display-small" id="calcSmallDisplay">${lastResult || ''}</div>
+                <div id="calcMainDisplay">${calcDisplay}</div>
+            </div>
+            
+            <div class="calc-memory">
+                <button class="memory-btn" onclick="memoryClear()">MC</button>
+                <button class="memory-btn" onclick="memoryRecall()">MR</button>
+                <button class="memory-btn" onclick="memoryAdd()">M+</button>
+                <button class="memory-btn" onclick="memorySubtract()">M-</button>
+                <button class="memory-btn" onclick="memorySave()">MS</button>
+            </div>
+            
+            <div class="calc-buttons">
+                <button class="calc-btn clear" onclick="clearDisplay()">C</button>
+                <button class="calc-btn" onclick="backspace()">⌫</button>
+                <button class="calc-btn operator" onclick="addOperator('%')">%</button>
+                <button class="calc-btn operator" onclick="addOperator('/')">÷</button>
+                
+                <button class="calc-btn" onclick="addNumber('7')">7</button>
+                <button class="calc-btn" onclick="addNumber('8')">8</button>
+                <button class="calc-btn" onclick="addNumber('9')">9</button>
+                <button class="calc-btn operator" onclick="addOperator('*')">×</button>
+                
+                <button class="calc-btn" onclick="addNumber('4')">4</button>
+                <button class="calc-btn" onclick="addNumber('5')">5</button>
+                <button class="calc-btn" onclick="addNumber('6')">6</button>
+                <button class="calc-btn operator" onclick="addOperator('-')">−</button>
+                
+                <button class="calc-btn" onclick="addNumber('1')">1</button>
+                <button class="calc-btn" onclick="addNumber('2')">2</button>
+                <button class="calc-btn" onclick="addNumber('3')">3</button>
+                <button class="calc-btn operator" onclick="addOperator('+')">+</button>
+                
+                <button class="calc-btn" onclick="addNumber('0')">0</button>
+                <button class="calc-btn" onclick="addNumber('00')">00</button>
+                <button class="calc-btn" onclick="addNumber('.')">.</button>
+                <button class="calc-btn equals" onclick="calculate()">=</button>
+            </div>
+            
+            <div class="calc-history">
+                <div style="font-weight:600; margin-bottom:8px;">📜 История</div>
+                ${historyHtml || '<div class="calc-history-item">Нет вычислений</div>'}
+                ${calcHistory.length > 0 ? '<button class="btn btn-ghost" style="margin-top:8px; width:100%;" onclick="clearHistory()">Очистить историю</button>' : ''}
+            </div>
+        </div>
+    `);
+}
+
+function addNumber(num) {
+    if (waitingForSecondNumber) {
+        calcDisplay = num;
+        waitingForSecondNumber = false;
+    } else {
+        calcDisplay = calcDisplay === '0' ? num : calcDisplay + num;
+    }
+    document.getElementById('calcMainDisplay').textContent = calcDisplay;
+}
+
+function addOperator(op) {
+    const lastChar = calcDisplay.slice(-1);
+    if ('+-*/%'.includes(lastChar)) {
+        calcDisplay = calcDisplay.slice(0, -1) + op;
+    } else {
+        calcDisplay += op;
+    }
+    waitingForSecondNumber = false;
+    document.getElementById('calcMainDisplay').textContent = calcDisplay;
+}
+
+function clearDisplay() {
+    calcDisplay = '0';
+    waitingForSecondNumber = false;
+    document.getElementById('calcMainDisplay').textContent = calcDisplay;
+    document.getElementById('calcSmallDisplay').textContent = '';
+}
+
+function backspace() {
+    calcDisplay = calcDisplay.length > 1 ? calcDisplay.slice(0, -1) : '0';
+    document.getElementById('calcMainDisplay').textContent = calcDisplay;
+}
+
+function calculate() {
+    try {
+        // Replace display operators with JavaScript operators
+        let expression = calcDisplay
+            .replace(/×/g, '*')
+            .replace(/÷/g, '/')
+            .replace(/−/g, '-');
+        
+        // Handle percentage
+        expression = expression.replace(/(\d+)%/g, '($1/100)');
+        
+        const result = eval(expression);
+        const historyItem = `${calcDisplay} = ${result}`;
+        
+        calcHistory.push(historyItem);
+        if (calcHistory.length > 20) calcHistory.shift();
+        localStorage.setItem('calcHistory', JSON.stringify(calcHistory));
+        
+        lastResult = result;
+        calcDisplay = result.toString();
+        waitingForSecondNumber = true;
+        
+        document.getElementById('calcMainDisplay').textContent = calcDisplay;
+        document.getElementById('calcSmallDisplay').textContent = historyItem;
+    } catch (e) {
+        document.getElementById('calcMainDisplay').textContent = 'Ошибка';
+        setTimeout(() => {
+            document.getElementById('calcMainDisplay').textContent = calcDisplay;
+        }, 1000);
+    }
+}
+
+function clearHistory() {
+    calcHistory = [];
+    localStorage.setItem('calcHistory', JSON.stringify(calcHistory));
+    renderCalculator();
+}
+
+function memoryRecall() {
+    calcDisplay = calcMemory.toString();
+    waitingForSecondNumber = false;
+    document.getElementById('calcMainDisplay').textContent = calcDisplay;
+}
+
+function memoryClear() {
+    calcMemory = 0;
+}
+
+function memoryAdd() {
+    try {
+        calcMemory += parseFloat(eval(calcDisplay.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')) || 0);
+    } catch (e) {}
+}
+
+function memorySubtract() {
+    try {
+        calcMemory -= parseFloat(eval(calcDisplay.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')) || 0);
+    } catch (e) {}
+}
+
+function memorySave() {
+    try {
+        calcMemory = parseFloat(eval(calcDisplay.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')) || 0);
+    } catch (e) {}
+}
+
+function startGame(gameType) {
+    stopSpeech();
+    setTopic('default');
+    showSkeleton();
+    
+    currentGame = gameType;
+    gameScore = 0;
+    currentQuestionIndex = 0;
+    gameQuestions = [];
+    
+    fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=10&format=json&origin=*`)
+        .then(r => r.json())
+        .then(data => {
+            const titles = data.query.random.map(r => r.title);
+            return Promise.all(titles.map(title => 
+                fetch(`https://${lang}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&format=json&origin=*&prop=text|images|displaytitle`)
+                    .then(r => r.json())
+                    .catch(() => null)
+            ));
+        })
+        .then(results => {
+            gameQuestions = results.filter(r => r && r.parse).map(r => ({
+                title: r.parse.title,
+                text: r.parse.text['*'],
+                images: r.parse.images || []
+            }));
+            
+            if (gameQuestions.length < 3) {
+                frame(`<div class="empty-state">
+                    <div class="e-icon">😕</div>
+                    <p>Не удалось загрузить достаточно статей для игры. Попробуйте ещё раз.</p>
+                    <button class="btn btn-primary" onclick="showGamesHub()">← К играм</button>
+                </div>`);
+                return;
+            }
+            
+            switch(gameType) {
+                case 'guessImage': renderGuessImage(); break;
+                case 'factPuzzle': renderFactPuzzle(); break;
+                case 'truthOrMyth': renderTruthOrMyth(); break;
+                case 'titleBattle': renderTitleBattle(); break;
+                default: showGamesHub();
+            }
+        })
+        .catch(() => {
+            frame(`<div class="empty-state">
+                <div class="e-icon">⚠️</div>
+                <p>Ошибка загрузки игр. Проверьте подключение.</p>
+                <button class="btn btn-primary" onclick="showGamesHub()">← Назад</button>
+            </div>`);
+        });
+}
+
+function renderGuessImage() {
+    if (currentQuestionIndex >= gameQuestions.length) {
+        endGame();
+        return;
+    }
+    
+    const q = gameQuestions[currentQuestionIndex];
+    const tmp = document.createElement('div');
+    tmp.innerHTML = q.text;
+    
+    let imgSrc = null;
+    const imgEl = tmp.querySelector('img');
+    if (imgEl && imgEl.src) {
+        imgSrc = imgEl.src;
+        if (imgSrc.startsWith('//')) imgSrc = 'https:' + imgSrc;
+    }
+    
+    if (!imgSrc) {
+        currentQuestionIndex++;
+        renderGuessImage();
+        return;
+    }
+    
+    const wrongOptions = gameQuestions
+        .filter((_, i) => i !== currentQuestionIndex)
+        .map(q => q.title)
+        .slice(0, 3);
+    
+    const options = [q.title, ...wrongOptions].sort(() => Math.random() - 0.5);
+    
+    frame(`
+        <div class="section-header">
+            <div class="section-title">🖼️ Угадай статью по картинке</div>
+            <div class="section-title">${currentQuestionIndex + 1}/${gameQuestions.length}</div>
+        </div>
+        <div class="game-progress">
+            <div class="game-progress-bar" style="width: ${(currentQuestionIndex / gameQuestions.length) * 100}%"></div>
+        </div>
+        <div class="game-stats">
+            <span>🎯 Счёт: ${gameScore}</span>
+        </div>
+        <img src="${imgSrc}" class="guess-image" onclick="showImageModal('${imgSrc}')">
+        <div class="options-grid" id="gameOptions">
+            ${options.map(opt => `<button class="option-btn" onclick="checkGuess('${opt.replace(/'/g, "\\'")}', '${q.title.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}
+        </div>
+        <div style="text-align:center; margin-top:20px;">
+            <button class="btn btn-ghost" onclick="endGame()">🚪 Завершить игру</button>
+        </div>
+    `);
+}
+
+function checkGuess(selected, correct) {
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(btn => btn.disabled = true);
+    
+    if (selected === correct) {
+        gameScore++;
+        event.target.classList.add('correct');
+    } else {
+        event.target.classList.add('wrong');
+        btns.forEach(btn => {
+            if (btn.textContent === correct) btn.classList.add('correct');
+        });
+    }
+    
+    setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < gameQuestions.length) {
+            renderGuessImage();
+        } else {
+            endGame();
+        }
+    }, 1500);
+}
+
+function renderFactPuzzle() {
+    if (currentQuestionIndex >= gameQuestions.length - 1) {
+        endGame();
+        return;
+    }
+    
+    const q1 = gameQuestions[currentQuestionIndex];
+    const q2 = gameQuestions[currentQuestionIndex + 1];
+    
+    const extractFact = (article, maxLength = 200) => {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = article.text;
+        const paragraphs = tmp.querySelectorAll('p');
+        for (let p of paragraphs) {
+            const text = p.textContent.trim();
+            if (text.length > 50 && text.length < maxLength && !text.includes('[')) {
+                return text;
+            }
+        }
+        return `${article.title} — интересная статья на Википедии`;
+    };
+    
+    const fact1 = extractFact(q1);
+    const fact2 = extractFact(q2);
+    
+    const pieces = [
+        { fact: fact1, article: q1.title, id: 1 },
+        { fact: fact2, article: q2.title, id: 2 }
+    ].sort(() => Math.random() - 0.5);
+    
+    frame(`
+        <div class="section-header">
+            <div class="section-title">🧩 Собери пазл из фактов</div>
+            <div class="section-title">${currentQuestionIndex + 1}/${gameQuestions.length - 1}</div>
+        </div>
+        <div class="game-progress">
+            <div class="game-progress-bar" style="width: ${(currentQuestionIndex / (gameQuestions.length - 1)) * 100}%"></div>
+        </div>
+        <div class="game-stats">
+            <span>🎯 Счёт: ${gameScore}</span>
+        </div>
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:250px;">
+                <h3>Факты:</h3>
+                <div class="fact-puzzle">
+                    ${pieces.map((p, i) => `<div class="fact-piece" onclick="selectFact(${i}, '${p.article.replace(/'/g, "\\'")}')" data-fact-id="${i}">${p.fact}</div>`).join('')}
+                </div>
+            </div>
+            <div style="flex:1; min-width:250px;">
+                <h3>Статьи:</h3>
+                <div class="fact-puzzle">
+                    <div class="fact-piece" onclick="selectArticle(0, '${q1.title.replace(/'/g, "\\'")}')" data-article-id="0">📄 ${q1.title}</div>
+                    <div class="fact-piece" onclick="selectArticle(1, '${q2.title.replace(/'/g, "\\'")}')" data-article-id="1">📄 ${q2.title}</div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center; margin:20px 0;">
+            <button class="btn btn-primary" onclick="checkFactMatch()" id="checkMatchBtn" disabled>✅ Проверить</button>
+        </div>
+        <div style="text-align:center;">
+            <button class="btn btn-ghost" onclick="endGame()">🚪 Завершить игру</button>
+        </div>
+    `);
+    
+    window.selectedFact = null;
+    window.selectedArticle = null;
+    window.selectedFactTitle = null;
+    window.selectedArticleTitle = null;
+}
+
+function selectFact(index, articleTitle) {
+    document.querySelectorAll('.fact-piece[data-fact-id]').forEach(el => el.classList.remove('selected'));
+    event.target.classList.add('selected');
+    window.selectedFact = index;
+    window.selectedFactTitle = articleTitle;
+    updateCheckButton();
+}
+
+function selectArticle(index, articleTitle) {
+    document.querySelectorAll('.fact-piece[data-article-id]').forEach(el => el.classList.remove('selected'));
+    event.target.classList.add('selected');
+    window.selectedArticle = index;
+    window.selectedArticleTitle = articleTitle;
+    updateCheckButton();
+}
+
+function updateCheckButton() {
+    const btn = document.getElementById('checkMatchBtn');
+    if (window.selectedFact !== null && window.selectedArticle !== null) {
+        btn.disabled = false;
+    }
+}
+
+function checkFactMatch() {
+    if (window.selectedFactTitle === window.selectedArticleTitle) {
+        gameScore++;
+        document.querySelectorAll('.fact-piece.selected').forEach(el => el.classList.add('correct'));
+    } else {
+        document.querySelectorAll('.fact-piece.selected').forEach(el => el.classList.add('wrong'));
+    }
+    
+    document.getElementById('checkMatchBtn').disabled = true;
+    
+    setTimeout(() => {
+        currentQuestionIndex += 2;
+        if (currentQuestionIndex < gameQuestions.length - 1) {
+            renderFactPuzzle();
+        } else {
+            endGame();
+        }
+    }, 1500);
+}
+
+function renderTruthOrMyth() {
+    if (currentQuestionIndex >= gameQuestions.length) {
+        endGame();
+        return;
+    }
+    
+    const q = gameQuestions[currentQuestionIndex];
+    const tmp = document.createElement('div');
+    tmp.innerHTML = q.text;
+    
+    const paragraphs = tmp.querySelectorAll('p');
+    let fact = '';
+    for (let p of paragraphs) {
+        fact = p.textContent.trim();
+        if (fact.length > 30 && fact.length < 150 && !fact.includes('[')) break;
+    }
+    
+    if (!fact) fact = `${q.title} — статья на Википедии`;
+    
+    const isTruth = Math.random() > 0.5;
+    const mythFact = isTruth ? fact : `На самом деле ${fact.split(' ').slice(0, 5).join(' ')}... — это распространённый миф.`;
+    
+    frame(`
+        <div class="section-header">
+            <div class="section-title">🤔 Правда или миф?</div>
+            <div class="section-title">${currentQuestionIndex + 1}/${gameQuestions.length}</div>
+        </div>
+        <div class="game-progress">
+            <div class="game-progress-bar" style="width: ${(currentQuestionIndex / gameQuestions.length) * 100}%"></div>
+        </div>
+        <div class="game-stats">
+            <span>🎯 Счёт: ${gameScore}</span>
+        </div>
+        <div style="background:var(--surface2); padding:25px; border-radius:20px; margin:20px 0; font-size:18px; border:2px solid var(--border);">
+            "${mythFact}"
+        </div>
+        <div class="options-grid">
+            <button class="option-btn" onclick="checkTruthMyth(true, ${isTruth})">✅ Правда</button>
+            <button class="option-btn" onclick="checkTruthMyth(false, ${isTruth})">❌ Миф</button>
+        </div>
+        <div style="text-align:center; margin-top:20px;">
+            <button class="btn btn-ghost" onclick="endGame()">🚪 Завершить игру</button>
+        </div>
+    `);
+}
+
+function checkTruthMyth(selected, isTruth) {
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(btn => btn.disabled = true);
+    
+    if (selected === isTruth) {
+        gameScore++;
+        event.target.classList.add('correct');
+    } else {
+        event.target.classList.add('wrong');
+        btns.forEach(btn => {
+            if ((btn.textContent === '✅ Правда' && isTruth) || (btn.textContent === '❌ Миф' && !isTruth)) {
+                btn.classList.add('correct');
+            }
+        });
+    }
+    
+    setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < gameQuestions.length) {
+            renderTruthOrMyth();
+        } else {
+            endGame();
+        }
+    }, 1500);
+}
+
+function renderTitleBattle() {
+    if (currentQuestionIndex >= gameQuestions.length) {
+        endGame();
+        return;
+    }
+    
+    const q = gameQuestions[currentQuestionIndex];
+    const tmp = document.createElement('div');
+    tmp.innerHTML = q.text;
+    
+    let description = '';
+    const paragraphs = tmp.querySelectorAll('p');
+    for (let p of paragraphs) {
+        description = p.textContent.trim();
+        if (description.length > 50 && description.length < 300) break;
+    }
+    
+    if (!description) description = `Статья о ${q.title.toLowerCase()}`;
+    
+    const wrongTitles = gameQuestions
+        .filter((_, i) => i !== currentQuestionIndex)
+        .map(q => q.title)
+        .slice(0, 3);
+    
+    const options = [q.title, ...wrongTitles].sort(() => Math.random() - 0.5);
+    
+    frame(`
+        <div class="section-header">
+            <div class="section-title">⚔️ Битва заголовков</div>
+            <div class="section-title">${currentQuestionIndex + 1}/${gameQuestions.length}</div>
+        </div>
+        <div class="game-progress">
+            <div class="game-progress-bar" style="width: ${(currentQuestionIndex / gameQuestions.length) * 100}%"></div>
+        </div>
+        <div class="game-stats">
+            <span>🎯 Счёт: ${gameScore}</span>
+        </div>
+        <div style="background:var(--surface2); padding:25px; border-radius:20px; margin:20px 0; border:2px solid var(--border);">
+            ${description}
+        </div>
+        <div class="options-grid">
+            ${options.map(opt => `<button class="option-btn" onclick="checkTitle('${opt.replace(/'/g, "\\'")}', '${q.title.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}
+        </div>
+        <div style="text-align:center; margin-top:20px;">
+            <button class="btn btn-ghost" onclick="endGame()">🚪 Завершить игру</button>
+        </div>
+    `);
+}
+
+function checkTitle(selected, correct) {
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(btn => btn.disabled = true);
+    
+    if (selected === correct) {
+        gameScore++;
+        event.target.classList.add('correct');
+    } else {
+        event.target.classList.add('wrong');
+        btns.forEach(btn => {
+            if (btn.textContent === correct) btn.classList.add('correct');
+        });
+    }
+    
+    setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < gameQuestions.length) {
+            renderTitleBattle();
+        } else {
+            endGame();
+        }
+    }, 1500);
+}
+
+function endGame() {
+    const totalQuestions = currentGame === 'factPuzzle' ? Math.floor(gameQuestions.length / 2) : gameQuestions.length;
+    const percent = Math.round((gameScore / totalQuestions) * 100);
+    let message = '';
+    if (percent >= 80) message = '🌟 Отлично! Ты настоящий эрудит!';
+    else if (percent >= 60) message = '👍 Хорошо! Но есть куда расти.';
+    else if (percent >= 40) message = '👌 Неплохо, попробуй ещё раз!';
+    else message = '💪 Попробуй снова, у тебя получится!';
+    
+    frame(`
+        <div class="empty-state">
+            <div class="e-icon">🎮</div>
+            <h2>Игра завершена!</h2>
+            <p style="font-size: 24px; font-weight: 800; color: var(--accent);">${gameScore} / ${totalQuestions}</p>
+            <p>${message}</p>
+            <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
+                <button class="btn btn-primary" onclick="startGame('${currentGame}')">🔄 Играть снова</button>
+                <button class="btn btn-ghost" onclick="showHome()">🏠 На главную</button>
+            </div>
+        </div>
+    `);
+}
+
+function searchWiki() {
+    const q = document.getElementById('searchInput').value.trim();
+    if (!q) {
+        frame('<div class="empty-state"><div class="e-icon">✏️</div><p>Введите запрос для поиска</p></div>');
+        return;
+    }
+    lastQuery = q;
+    addToHistory('Поиск: ' + q, 'search');
+    showSkeleton();
+
+    fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`)
+        .then(r => r.json())
+        .then(data => {
+            const results = data.query && data.query.search;
+            if (!results || !results.length) {
+                frame('<div class="empty-state"><div class="e-icon">😕</div><p>Ничего не нашлось.<br>Попробуй другой запрос.</p></div>');
+                return;
+            }
+            let html = `<div class="results-title">🔍 Результаты: «${q}»</div>`;
+            results.slice(0, 8).forEach(r => {
+                const snippet = r.snippet.replace(/<[^>]*>/g, '').substring(0, 130);
+                const safeTitle = r.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+                html += `<div class="result-card" onclick="loadPage('${safeTitle}')">
+                    <h3>${r.title}</h3>
+                    <p>${snippet}…</p>
+                </div>`;
+            });
+            frame(html);
+        })
+        .catch(() => frame('<div class="empty-state"><div class="e-icon">⚠️</div><p>Ошибка сети.</p></div>'));
+}
+
+function processArticleLinks(container) {
+    container.querySelectorAll('a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('/wiki/')) {
+            const title = decodeURIComponent(href.replace('/wiki/', ''));
+            link.onclick = (e) => {
+                e.preventDefault();
+                loadPage(title);
+            };
+            link.style.cursor = 'pointer';
+        } else if (href && href.startsWith('#')) {
+            link.onclick = (e) => {
+                e.preventDefault();
+                const target = document.getElementById(href.substring(1));
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            };
+        }
+    });
+}
+
+function processArticleImages(container) {
+    container.querySelectorAll('img').forEach(img => {
+        img.onclick = () => showImageModal(img.src);
+        img.style.cursor = 'pointer';
+        
+        if (img.src && img.src.startsWith('//')) {
+            img.src = 'https:' + img.src;
+        }
+    });
+    
+    container.querySelectorAll('.gallery').forEach(gallery => {
+        gallery.classList.add('article-gallery');
+    });
+}
+
+function showImageModal(imgSrc) {
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.onclick = () => modal.remove();
+    modal.innerHTML = `<img src="${imgSrc}" alt="Полноразмерное изображение">`;
+    document.body.appendChild(modal);
+}
+
+function loadPage(title) {
+    stopSpeech();
+    
+    currentArticle = title;
+    setTopic(detectTopic(title));
+    addToHistory(title, 'article');
+    showSkeleton();
+
+    fetch(`https://${lang}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&format=json&origin=*&prop=text&disableeditsection=true&mobileformat=true`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.parse || !data.parse.text) throw new Error('no data');
+            
+            const tmp = document.createElement('div');
+            tmp.innerHTML = data.parse.text['*'];
+            
+            const selectorsToRemove = [
+                '.reflist', '.references', '.navbox', '.vertical-navbox',
+                '.mbox-small', '.metadata', '.noprint', '.mw-editsection',
+                '.mw-empty-elt', '.hatnote', '.dablink', '.ambox',
+                '#toc', '.toc', '.infobox .navbox', '.reference',
+                'sup.reference', '.error', '.mw-cite-backlink',
+                '.printfooter', '.catlinks', '.mw-normal-catlinks'
+            ];
+            
+            selectorsToRemove.forEach(selector => {
+                tmp.querySelectorAll(selector).forEach(el => el.remove());
+            });
+            
+            let content = tmp.querySelector('.mw-parser-output');
+            if (!content) content = tmp;
+            
+            processArticleLinks(content);
+            processArticleImages(content);
+            
+            const rKey = `${lang}:${title}`;
+            const r = ratings[rKey] || { likes: 0, dislikes: 0, mine: null };
+            const bmActive = isBookmarked(title);
+            const safeTitle = title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const topic = detectTopic(title);
+
+            frame(`
+                <div class="article-header">
+                    <div class="topic-badge">${TOPIC_EMOJI[topic]} ${TOPIC_LABEL[topic]}</div>
+                    <div class="article-title">${title}</div>
+                    <div class="article-actions">
+                        <button class="btn btn-ghost" id="bmBtn" onclick="clickBookmark('${safeTitle}')">
+                            🔖 ${bmActive ? 'В закладках' : 'Добавить'}
+                        </button>
+                        <button class="btn btn-ghost" id="speechBtn" onclick="toggleSpeech()">
+                            🎤 Озвучить
+                        </button>
+                    </div>
+                </div>
+                <div class="article-content" id="articleContent">${content.innerHTML}</div>
+                <div class="article-footer">
+                    <div class="rating-box">
+                        <div class="rating-label">💬 Оцени статью</div>
+                        <div class="rating-btns">
+                            <button class="rate-btn ${r.mine === 'like' ? 'liked' : ''}" id="likeBtn" onclick="rate('like')">👍 <span id="likeCnt">${r.likes}</span></button>
+                            <button class="rate-btn ${r.mine === 'dislike' ? 'disliked' : ''}" id="dislikeBtn" onclick="rate('dislike')">👎 <span id="dislikeCnt">${r.dislikes}</span></button>
+                        </div>
+                    </div>
+                    <a class="wiki-link" href="https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title)}" target="_blank">📖 Читать на оригинальной Википедии →</a>
+                    <div class="nav-btns">
+                        ${lastQuery ? `<button class="btn btn-ghost" onclick="searchWiki()">← К результатам</button>` : ''}
+                        <button class="btn btn-ghost" onclick="showHistory()">📋 История</button>
+                        <button class="btn btn-ghost" onclick="randomArticle()">🎲 Случайная</button>
+                    </div>
+                </div>
+            `);
+            
+            setTimeout(updateReadingProgress, 100);
+        })
+        .catch(() => frame('<div class="empty-state"><div class="e-icon">❌</div><p>Не удалось загрузить статью.</p></div>'));
+}
+
+function clickBookmark(title) {
+    toggleBookmark(title);
+    const btn = document.getElementById('bmBtn');
+    if (btn) btn.innerHTML = `🔖 ${isBookmarked(title) ? 'В закладках' : 'Добавить'}`;
+}
+
+function rate(type) {
+    const key = `${lang}:${currentArticle}`;
+    if (!ratings[key]) ratings[key] = { likes: 0, dislikes: 0, mine: null };
+    const r = ratings[key];
+    const field = type === 'like' ? 'likes' : 'dislikes';
+    const oppField = type === 'like' ? 'dislikes' : 'likes';
+    if (r.mine === type) { r[field]--; r.mine = null; }
+    else { if (r.mine) r[oppField]--; r[field]++; r.mine = type; }
+    saveRatings();
+    document.getElementById('likeCnt').textContent = r.likes;
+    document.getElementById('dislikeCnt').textContent = r.dislikes;
+    document.getElementById('likeBtn').className = `rate-btn ${r.mine === 'like' ? 'liked' : ''}`;
+    document.getElementById('dislikeBtn').className = `rate-btn ${r.mine === 'dislike' ? 'disliked' : ''}`;
+    const hi = history.find(i => i.title === currentArticle);
+    if (hi) { hi.rating = r.mine; saveHistory(); }
+}
+
+function getTextForSpeech() {
+    const contentDiv = document.getElementById('articleContent');
+    if (!contentDiv) return '';
+    
+    const clone = contentDiv.cloneNode(true);
+    clone.querySelectorAll('script, style, table, .infobox, .navbox, .gallery').forEach(el => el.remove());
+    return clone.textContent.trim();
+}
+
+function toggleSpeech() {
+    if (!window.speechSynthesis) {
+        alert('К сожалению, ваш браузер не поддерживает синтез речи.');
+        return;
+    }
+
+    const speechBtn = document.getElementById('speechBtn');
+    
+    if (isSpeaking) {
+        stopSpeech();
+        if (speechBtn) speechBtn.innerHTML = '🎤 Озвучить';
+    } else {
+        const text = getTextForSpeech();
+        if (!text) {
+            alert('Нет текста для озвучивания.');
+            return;
+        }
+        
+        startSpeech(text);
+        if (speechBtn) {
+            speechBtn.innerHTML = '⏸️ Пауза';
+            speechBtn.classList.add('speaking');
+        }
+    }
+}
+
+function startSpeech(text) {
+    if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+    }
+    
+    speechUtterance = new SpeechSynthesisUtterance(text);
+    
+    const langMap = {
+        'ru': 'ru-RU', 'en': 'en-US', 'de': 'de-DE', 'fr': 'fr-FR',
+        'es': 'es-ES', 'it': 'it-IT', 'pt': 'pt-PT', 'nl': 'nl-NL',
+        'pl': 'pl-PL', 'uk': 'uk-UA', 'ja': 'ja-JP', 'zh': 'zh-CN',
+        'ar': 'ar-SA', 'hi': 'hi-IN', 'bn': 'bn-BD', 'ko': 'ko-KR',
+        'tr': 'tr-TR', 'vi': 'vi-VN', 'th': 'th-TH', 'cs': 'cs-CZ',
+        'sv': 'sv-SE', 'fi': 'fi-FI', 'no': 'no-NO', 'da': 'da-DK',
+        'hu': 'hu-HU', 'el': 'el-GR', 'he': 'he-IL', 'ro': 'ro-RO',
+        'sk': 'sk-SK', 'bg': 'bg-BG', 'sr': 'sr-RS', 'hr': 'hr-HR',
+        'lt': 'lt-LT', 'lv': 'lv-LV', 'et': 'et-EE', 'id': 'id-ID',
+        'ms': 'ms-MY'
+    };
+    
+    speechUtterance.lang = langMap[lang] || 'ru-RU';
+    
+    speechUtterance.onstart = () => { isSpeaking = true; };
+    speechUtterance.onend = () => { isSpeaking = false; updateSpeechBtn(); };
+    speechUtterance.onerror = () => { isSpeaking = false; updateSpeechBtn(); };
+    
+    speechSynthesis.speak(speechUtterance);
+}
+
+function updateSpeechBtn() {
+    const speechBtn = document.getElementById('speechBtn');
+    if (speechBtn) {
+        speechBtn.innerHTML = '🎤 Озвучить';
+        speechBtn.classList.remove('speaking');
+    }
+}
+
+function stopSpeech() {
+    if (speechSynthesis) {
+        speechSynthesis.cancel();
+    }
+    isSpeaking = false;
+    updateSpeechBtn();
+}
+
+function randomArticle() {
+    stopSpeech();
+    
+    setTopic('default');
+    showSkeleton();
+    fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`)
+        .then(r => r.json())
+        .then(d => { loadPage(d.query.random[0].title); })
+        .catch(() => frame('<div class="empty-state"><div class="e-icon">⚠️</div><p>Не удалось получить случайную статью</p></div>'));
+}
+
+function showHistory() {
+    stopSpeech();
+    
+    setTopic('default');
+    const articles = history.filter(i => i.type === 'article');
+    const searches = history.filter(i => i.type === 'search');
+    const liked = history.filter(i => i.rating === 'like').length;
+    const disliked = history.filter(i => i.rating === 'dislike').length;
+    const topicCounts = {};
+    articles.forEach(a => { const t = detectTopic(a.title); topicCounts[t] = (topicCounts[t] || 0) + 1; });
+    const topTopics = Object.entries(topicCounts).sort((a,b) => b[1]-a[1]).slice(0, 5);
+
+    let html = `
+        <div class="section-header">
+            <div class="section-title">📋 История</div>
+            <button class="btn btn-ghost" onclick="showHome()">← На главную</button>
+        </div>
+        <div class="stats-row">
+            <div class="stat-card"><div class="num">${articles.length}</div><div class="lbl">📄 Статей</div></div>
+            <div class="stat-card"><div class="num">${searches.length}</div><div class="lbl">🔍 Поисков</div></div>
+            <div class="stat-card"><div class="num">${liked}</div><div class="lbl">👍 Лайков</div></div>
+            <div class="stat-card"><div class="num">${disliked}</div><div class="lbl">👎 Дизлайков</div></div>
+        </div>
+        ${topTopics.length ? `<div style="margin-bottom:16px;"><div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">🏆 Твои любимые темы</div><div class="pills">${topTopics.map(([t,c]) => `<span class="pill">${TOPIC_EMOJI[t]} ${TOPIC_LABEL[t]} ×${c}</span>`).join('')}</div></div>` : ''}
+    `;
+
+    if (!history.length) {
+        html += `<div class="empty-state"><div class="e-icon">🕊️</div><p>История пока пуста.</p></div>`;
+    } else {
+        html += `<div class="list">`;
+        history.forEach(item => {
+            const safeTitle = item.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const icon = item.type === 'search' ? '🔍' : '📄';
+            const ratingBadge = item.rating === 'like' ? ' 👍' : item.rating === 'dislike' ? ' 👎' : '';
+            html += `<div class="list-card" onclick="handleHistoryClick('${safeTitle}', '${item.type}')">
+                <div class="icon">${icon}</div>
+                <div class="info">
+                    <div class="c-title">${item.title}${ratingBadge}</div>
+                    <div class="c-sub">${item.date} · ${(item.lang||'ru').toUpperCase()}</div>
+                </div>
+                <span class="arr">→</span>
+            </div>`;
+        });
+        if (history.length > 0) {
+            html += `<div style="text-align:center; margin-top:16px;"><button class="btn btn-danger" onclick="clearHistory()">🗑️ Очистить всё</button></div>`;
+        }
+        html += `</div>`;
+    }
+    frame(html);
+}
+
+function handleHistoryClick(title, type) {
+    if (type === 'search') {
+        const q = title.replace('Поиск: ', '');
+        document.getElementById('searchInput').value = q;
+        searchWiki();
+    } else {
+        loadPage(title);
+    }
+}
+function clearHistory() {
+    if (confirm('Точно очистить всю историю?')) { history = []; saveHistory(); showHistory(); }
+}
+
+function showBookmarks() {
+    stopSpeech();
+    
+    setTopic('default');
+    let html = `<div class="section-header"><div class="section-title">🔖 Закладки</div><button class="btn btn-ghost" onclick="showHome()">← На главную</button></div>`;
+    if (!bookmarks.length) {
+        html += `<div class="empty-state"><div class="e-icon">🔖</div><p>Закладок пока нет.<br>Открой статью и нажми «Добавить».</p></div>`;
+    } else {
+        html += `<div class="list">`;
+        bookmarks.forEach(b => {
+            const safeTitle = b.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const topic = detectTopic(b.title);
+            html += `<div class="list-card">
+                <div class="icon" onclick="loadPage('${safeTitle}')">${TOPIC_EMOJI[topic]}</div>
+                <div class="info" onclick="loadPage('${safeTitle}')">
+                    <div class="c-title">${b.title}</div>
+                    <div class="c-sub">${b.date} · ${(b.lang||'ru').toUpperCase()}</div>
+                </div>
+                <button class="remove-btn" onclick="removeBookmark('${safeTitle}')">✕ Удалить</button>
+            </div>`;
+        });
+        html += `</div>`;
+    }
+    frame(html);
+}
+
+function removeBookmark(title) {
+    bookmarks = bookmarks.filter(b => b.title !== title);
+    saveBookmarks();
+    showBookmarks();
+}
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function scrollToBottom() {
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+}
+
+function handleProgressClick() {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    if (winScroll < 10) { scrollToBottom(); } else { scrollToTop(); }
+}
+
+function updateReadingProgress() {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const progressEl = document.getElementById('readingProgress');
+    
+    if (height <= 0) {
+        progressEl.innerHTML = '0%';
+        progressEl.classList.remove('arrow');
+        return;
+    }
+    
+    const scrolled = Math.min(100, Math.round((winScroll / height) * 100));
+    
+    if (winScroll < 10) {
+        progressEl.innerHTML = '↓';
+        progressEl.classList.add('arrow');
+    } else if (scrolled >= 100 || (window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 5) {
+        progressEl.innerHTML = '↑';
+        progressEl.classList.add('arrow');
+    } else {
+        progressEl.innerHTML = scrolled + '%';
+        progressEl.classList.remove('arrow');
+    }
+}
+
+window.addEventListener('scroll', updateReadingProgress);
+window.addEventListener('load', updateReadingProgress);
+window.addEventListener('resize', updateReadingProgress);
+setInterval(updateReadingProgress, 100);
+</script>
+</body>
+</html>
